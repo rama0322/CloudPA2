@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+        }
+        .main-container {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: rgb(243, 174, 174);
+            padding: 20px 30px;
+            border-radius: 10px;
+        }
+        .title-color {
+            color: #6c757d;
+        }
+        .btn-primary {
+            background-color: #5d1049;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #451c3e;
+        }
+        #result {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-light d-flex align-items-center justify-content-center">
+    <div class="container main-container">
+        <h1 class="text-center mb-4 title-color">Wine Quality Tester</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <form id="uploadForm" action="http://ec2-3-92-54-31.compute-1.amazonaws.com:5000/predict" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="fileInput" class="h5">Upload wine data file:</label>
+                        <input type="file" name="file" id="fileInput" class="form-control-file">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Predict Quality</button>
+                </form>
+                <p id="result" class="mt-4 p-2 bg-success text-white text-center rounded"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("uploadForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById("fileInput");
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append("file", file);
+
+            fetch("http://ec2-3-92-54-31.compute-1.amazonaws.com:5000/predict", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultElement = document.getElementById("result");
+                resultElement.innerHTML = "Predicted F1 Score: " + data.f1_score;
+                resultElement.style.display = 'block';
+            })
+            .catch(error => console.error("Error:", error));
+        });
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
